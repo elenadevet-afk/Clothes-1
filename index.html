@@ -3,19 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Редактор — Одень куклу (Paper Doll)</title>
-
-<script>
-  window.MathJax = {
-    tex: {
-      packages: ['base', 'ams', 'autoload'],
-      inlineMath: [['$', '$'], ['\\(', '\\)']],
-      displayMath: [['$$', '$$'], ['\\[', '\\]']],
-      processEscapes: true
-    }
-  };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <title>Интерактивная игра — Одень куклу (Paper Doll)</title>
 
   <style>
     :root{
@@ -26,322 +14,329 @@
       --ink:#f1f1f1;
       --muted:#b8b8b8;
       --stroke:#26262a;
-      --gap:16px;
-      --shadow: 0 0 30px rgba(255,107,129,.08);
-      --shadow2: 0 10px 30px rgba(0,0,0,.35);
       --radius:16px;
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%; margin:0;}
     body{
-      margin:0;
-      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,107,129,.10), transparent 60%),
-                  radial-gradient(900px 500px at 80% 0%, rgba(112,161,255,.06), transparent 55%),
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,107,129,.15), transparent 60%),
+                  radial-gradient(900px 500px at 80% 0%, rgba(112,161,255,.1), transparent 55%),
                   var(--bg);
       color:var(--ink);
-      font-family:Rubik,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       display:flex;
       flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      padding: 16px;
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 850px;
+      height: 600px;
+      background: rgba(18, 18, 21, 0.85);
+      border: 2px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      backdrop-filter: blur(10px);
+      overflow: hidden;
     }
 
     header{
-      position:sticky; top:0; z-index:5;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:14px 18px;
-      border-bottom:1px solid var(--stroke);
-      background: rgba(11,11,13,.88);
-      backdrop-filter: blur(10px);
-    }
-    header h1{
-      margin:0; font-size:18px; font-weight:900;
-      color:var(--ui-acc); display:flex; align-items:center; gap:10px;
-    }
-    .pill{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04); color: rgba(255,255,255,.85);
-      white-space:nowrap;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--stroke);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
     }
 
-    main{
-      display:grid; grid-template-columns: 520px 1fr;
-      gap:22px; padding:18px; max-width:1560px; width:100%; margin:0 auto;
-      align-items: start;
+    .quest-box {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--ui-acc);
     }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-      border:1px solid var(--stroke); border-radius: var(--radius);
-      padding:16px; box-shadow: var(--shadow);
+    .counter {
+      font-size: 14px;
+      background: rgba(255,255,255,0.08);
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    .card h2{
-      margin:0 0 12px; font-size:16px; color:var(--ui-acc); font-weight:900;
-      display:flex; align-items:center; gap:10px;
-    }
-    .section{
-      border:1px solid rgba(255,255,255,.06); background: rgba(0,0,0,.18);
-      border-radius: 14px; padding:14px; margin-top:12px;
-    }
-    .section:first-child{margin-top:0}
 
-    label{
-      display:block; margin:10px 0 6px; font-size:14px; color:#fff; font-weight:700;
+    .game-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      position: relative;
     }
-    input[type=text], input[type=number], input[type=url], textarea, select{
-      width:100%; background: #0f0f12; color:#fff;
-      border:1px solid rgba(255,255,255,.16); border-radius: 12px;
-      padding:10px 12px; font-size:14px; outline:none;
-      transition:border-color .15s ease, box-shadow .15s ease;
-    }
-    textarea{min-height:86px; resize:vertical}
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(255,107,129,.55);
-      box-shadow: 0 0 0 3px rgba(255,107,129,.14);
-    }
-    select{cursor:pointer}
-    .row{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap)}
-    .small-hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35}
-    .hint{color:var(--muted); font-size:12px; margin-top:8px; line-height:1.45}
-    .divider{height:1px; background: rgba(255,255,255,.06); margin:14px 0}
 
-    button{
-      background: linear-gradient(90deg, var(--ui-acc2), var(--ui-acc));
-      color:#fff; border:none; border-radius: 14px; font-weight:900;
-      padding:12px 14px; cursor:pointer; transition:transform .12s ease;
-      font-size:14px; box-shadow: 0 10px 30px rgba(255,107,129,.18);
+    /* Зона куклы */
+    .stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
     }
-    button:hover{transform: translateY(-1px)}
-    .btn-ghost{
-      background: rgba(255,255,255,.06); color:#fff;
-      border:1px solid rgba(255,255,255,.14); box-shadow:none;
-    }
-    .btn-mini{padding:10px 12px; border-radius:12px; font-size:13px}
 
-    .pub-wrap{display:grid; grid-template-columns: 1fr 220px; gap:14px; align-items:start}
-    .pub-left textarea{height:150px; font-family:monospace; font-size:12.5px}
-    .pub-right{display:flex; flex-direction:column; gap:10px}
-    .pub-bottom{margin-top:12px}
-    .pub-bottom button{width:100%}
+    .doll-wrapper {
+      position: relative;
+      width: 220px;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-    .preview-stack{display:flex; flex-direction:column; gap:12px}
-    .preview-item{
-      border:1px solid rgba(255,255,255,.06); background: rgba(0,0,0,.16);
-      border-radius: 14px; padding:12px; box-shadow: var(--shadow2);
+    .doll-base {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
     }
-    .preview-item h3{
-      margin:0 0 10px; font-size:13px; font-weight:900; color: rgba(255,255,255,.9);
-      display:flex; align-items:center; justify-content:space-between;
+
+    /* Слой для надетых вещей */
+    .equipped-slot {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      object-fit: contain;
     }
-    .kbd{
-      font-size:11px; padding:4px 8px; border-radius:999px;
-      background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
+
+    /* Гардероб (панель с вещами) */
+    .wardrobe-panel {
+      border-left: 1px solid var(--stroke);
+      background: rgba(0,0,0,0.3);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
     }
-    .hidden{display:none !important}
+
+    .wardrobe-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .clothing-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: grab;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .clothing-item:hover {
+      background: rgba(255, 107, 129, 0.1);
+      border-color: var(--ui-acc);
+      transform: translateY(-2px);
+    }
+
+    .clothing-item:active {
+      cursor: grabbing;
+    }
+
+    .clothing-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .clothing-item span {
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+      text-align: center;
+      color: #fff;
+    }
+
+    /* Фидбек при победе */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 11, 13, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-overlay img {
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+    }
+    .modal-overlay h2 {
+      margin: 0;
+      color: var(--ui-acc);
+      font-size: 24px;
+      text-align: center;
+    }
   </style>
-  <link id="gf" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap">
 </head>
 <body>
 
-  <header>
-    <h1>👗 Редактор «Paper Doll» <span class="pill">English Quest</span></h1>
-    <span class="pill" id="statusPill">Готов</span>
-  </header>
+  <div class="game-container">
+    <header>
+      <div class="quest-box" id="questText">Loading task...</div>
+      <div class="counter" id="counterText">1 / 3</div>
+    </header>
 
-  <main>
-    <!-- LEFT PANEL: Controls -->
-    <section class="card">
-      <div class="section">
-        <h2>⚙️ Настройки куклы</h2>
-        <div class="row">
-          <div>
-            <label>Язык заданий</label>
-            <select id="language"></select>
-          </div>
-          <div>
-            <label>Шрифт</label>
-            <select id="font"></select>
-          </div>
-        </div>
-
-        <label>Картинка куклы-основы (URL)</label>
-        <input type="url" id="dollImage" placeholder="https://.../doll-base.png" value="https://i.postimg.cc/k4Z82v8w/doll-base.png">
-
-        <label>Инструкция для ученика (например: "Dress the character for school!")</label>
-        <input type="text" id="questInstruction" value="Dress the character according to the description!">
-      </div>
-
-      <div class="section">
-        <h2>🧢 Гардероб и Одежда (Элементы)</h2>
-        <label>Список вещей (Формат: Название по-английски | Категория | Ссылка на картинку одежды)</label>
-        <div class="small-hint">Категории: <b>head</b> (голова/шапки), <b>top</b> (верх), <b>bottom</b> (низ), <b>shoes</b> (обувь), <b>acc</b> (аксессуары).</div>
-        <textarea id="wardrobeItems" placeholder="Red sweater | top | https://.../sweater.png
-Blue jeans | bottom | https://.../jeans.png
-Yellow sneakers | shoes | https://.../sneakers.png"></textarea>
-      </div>
-
-      <div class="section">
-        <h2>🎯 Задания / Квест по английскому</h2>
-        <label>Условия задач (по одному на строку, например: "Put on warm clothes because it is cold outside")</label>
-        <textarea id="questions" placeholder="Put on warm clothes for school.
-Put on comfortable shoes for walking."></textarea>
-        
-        <label style="margin-top:10px;">Правильный предмет для задания (точное имя из гардероба)</label>
-        <input type="text" id="targetItem" placeholder="Red sweater" value="Red sweater">
-        <div class="small-hint">Ученик должен кликнуть или перетащить правильный элемент одежды, чтобы выполнить задание.</div>
-      </div>
-
-      <div class="section">
-        <h2>💫 Финальный фидбек</h2>
-        <div class="row">
-          <div>
-            <label>Текст при победе</label>
-            <input type="text" id="finalFeedback" value="🎉 Perfect Outfit! Great job!">
-          </div>
-          <div>
-            <label>Картинка успеха (URL)</label>
-            <input type="url" id="feedbackImage" value="https://i.postimg.cc/prHF0XG1/AI-(4).gif">
-          </div>
+    <div class="game-body">
+      <!-- Зона куклы -->
+      <div class="stage" id="dropZone">
+        <div class="doll-wrapper">
+          <img id="dollBase" class="doll-base" src="https://i.postimg.cc/k4Z82v8w/doll-base.png" alt="Doll">
+          <div id="equippedContainer"></div>
         </div>
       </div>
 
-      <div class="section" id="publishSection">
-        <h2>🚀 Публикация <span class="pill" style="margin-left:auto;">iframe</span></h2>
-        <div class="pub-wrap">
-          <div class="pub-left">
-            <label style="margin-top:0;">iframe для Genially</label>
-            <textarea id="iframeOut" readonly placeholder="Здесь появится iframe"></textarea>
-          </div>
-          <div class="pub-right">
-            <button id="copyBtn" class="btn-ghost btn-mini">📋 Копировать</button>
-            <button id="testBtn" class="btn-ghost btn-mini">🔎 Проверить</button>
-          </div>
-        </div>
-        <div class="pub-bottom">
-          <button id="saveBtn">💾 Сохранить и получить iframe</button>
-        </div>
+      <!-- Панель гардероба -->
+      <div class="wardrobe-panel">
+        <div class="wardrobe-title">Wardrobe</div>
+        <div class="items-grid" id="itemsGrid"></div>
       </div>
-    </section>
+    </div>
 
-    <!-- RIGHT PANEL: Preview -->
-    <section class="card">
-      <h2>🧪 Предпросмотр игры</h2>
-      <div class="preview-stack">
-        <div class="preview-item">
-          <h3>Интерфейс куклы <span class="kbd">Interactive</span></h3>
-          <div id="previewContainer" style="min-height:320px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,.3); border-radius:12px; padding:16px; text-align:center;">
-            <div id="prevInstruction" style="font-weight:900; margin-bottom:12px; color:var(--ui-acc);"></div>
-            <div style="position:relative; width:150px; height:250px; border:2px dashed rgba(255,255,255,.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
-              <img id="prevDollImg" src="" alt="Doll" style="max-height:100%; max-width:100%; object-fit:contain;" />
-            </div>
-            <div id="prevWardrobe" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:center;"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+    <!-- Фидбек-модалка -->
+    <div class="modal-overlay" id="winModal">
+      <img id="feedbackImg" src="https://i.postimg.cc/prHF0XG1/AI-(4).gif" alt="Success">
+      <h2 id="feedbackText">🎉 Perfect Outfit! Great job!</h2>
+    </div>
+  </div>
 
   <script>
-    const $ = s => document.querySelector(s);
-    const ENDPOINT = "https://server-kjnn.onrender.com/publish";
-    const PUBLISH_KEY = "nika_read_pub_2025";
-    const BASE_MAIN = "https://nikashum93.github.io/utki/doll-main.html"; // Условный путь для куклы
+    // НАСТРОЙКИ ИГРЫ: Вы можете менять тексты заданий, названия вещей и ссылки на картинки прямо здесь.
+    const gameData = {
+      dollImage: "https://i.postimg.cc/k4Z82v8w/doll-base.png",
+      feedbackImage: "https://i.postimg.cc/prHF0XG1/AI-(4).gif",
+      finalFeedback: "🎉 Wonderful! All outfits are correct!",
+      tasks: [
+        { instruction: "Put on the red sweater for school.", target: "Red sweater" },
+        { instruction: "Put on comfortable blue jeans for a walk.", target: "Blue jeans" },
+        { instruction: "Put on warm yellow sneakers.", target: "Yellow sneakers" }
+      ],
+      wardrobe: [
+        { name: "Red sweater", category: "top", image: "https://i.postimg.cc/3w3826v9/sweater.png" },
+        { name: "Blue jeans", category: "bottom", image: "https://i.postimg.cc/52839210/jeans.png" },
+        { name: "Yellow sneakers", category: "shoes", image: "https://i.postimg.cc/90218129/sneakers.png" },
+        { name: "Pink hat", category: "head", image: "https://i.postimg.cc/21892182/hat.png" }
+      ]
+    };
 
-    const LANGUAGE_OPTIONS = [
-      { value: "ru", label: "Русский" },
-      { value: "en", label: "English" }
-    ];
+    let currentTaskIndex = 0;
 
-    function fillLanguageSelect(){
-      const sel = $('#language');
-      sel.innerHTML = "";
-      LANGUAGE_OPTIONS.forEach(opt => {
-        const o = document.createElement('option');
-        o.value = opt.value;
-        o.textContent = opt.label;
-        sel.appendChild(o);
-      });
-      sel.value = 'en';
+    function initGame() {
+      document.getElementById('dollBase').src = gameData.dollImage;
+      renderWardrobe();
+      loadTask();
     }
 
-    function collectConfig(){
-      return {
-        language: $('#language').value,
-        dollImage: $('#dollImage').value.trim(),
-        instruction: $('#questInstruction').value.trim(),
-        wardrobeItems: $('#wardrobeItems').value.trim(),
-        questions: $('#questions').value.trim(),
-        finalFeedback: $('#finalFeedback').value.trim(),
-        feedbackImage: $('#feedbackImage').value.trim()
-      };
-    }
+    function renderWardrobe() {
+      const grid = document.getElementById('itemsGrid');
+      grid.innerHTML = '';
 
-    function refreshPreview(){
-      const cfg = collectConfig();
-      $('#prevDollImg').src = cfg.dollImage;
-      $('#prevInstruction').textContent = cfg.instruction || 'Dress the character!';
-      
-      const wrap = $('#prevWardrobe');
-      wrap.innerHTML = '';
-      
-      // Пример рендеринга вещей для превью из текста textarea
-      const lines = cfg.wardrobeItems.split('\n');
-      lines.forEach(line => {
-        if(!line.trim()) return;
-        const parts = line.split('|').map(p=>p.trim());
-        const name = parts[0] || 'Item';
-        const itemDiv = document.createElement('div');
-        itemDiv.textContent = name;
-        itemDiv.style.background = 'rgba(255,255,255,.1)';
-        itemDiv.style.padding = '6px 10px';
-        itemDiv.style.borderRadius = '8px';
-        itemDiv.style.fontSize = '12px';
-        wrap.appendChild(itemDiv);
-      });
-    }
+      gameData.wardrobe.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'clothing-item';
+        div.draggable = true;
+        
+        div.innerHTML = `
+          <img src="${item.image}" alt="${item.name}">
+          <span>${item.name}</span>
+        `;
 
-    async function publish(){
-      $('#statusPill').textContent = 'Публикую…';
-      const cfg = collectConfig();
-      const id = 'doll-' + Date.now();
-      const payload = {
-        id,
-        mode: "json",
-        folder: "data",
-        content: JSON.stringify(cfg, null, 2)
-      };
+        // Клик для выбора (удобно для планшетов и телефонов)
+        div.addEventListener('click', () => checkChoice(item.name));
 
-      try{
-        const res = await fetch(ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Publish-Key": PUBLISH_KEY },
-          body: JSON.stringify(payload)
+        // Перетаскивание (Drag and Drop для ПК)
+        div.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', item.name);
         });
-        if(!res.ok) throw new Error('Server error');
-        const iframe = `<iframe src="${BASE_MAIN}?id=${encodeURIComponent(id)}" width="900" height="640" style="border:0;" allow="autoplay" allowfullscreen></iframe>`;
-        $('#iframeOut').value = iframe;
-        $('#statusPill').textContent = 'Готово ✅';
-        alert('Опубликовано! Ссылка сформирована.');
-      }catch(e){
-        $('#statusPill').textContent = 'Ошибка';
-        alert("Ошибка публикации: " + e.message);
+
+        grid.appendChild(div);
+      });
+
+      const dropZone = document.getElementById('dropZone');
+      dropZone.addEventListener('dragover', (e) => e.preventDefault());
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const itemName = e.dataTransfer.getData('text/plain');
+        checkChoice(itemName);
+      });
+    }
+
+    function loadTask() {
+      if (currentTaskIndex >= gameData.tasks.length) {
+        showWinScreen();
+        return;
+      }
+      const task = gameData.tasks[currentTaskIndex];
+      document.getElementById('questText').textContent = task.instruction;
+      document.getElementById('counterText').textContent = `${currentTaskIndex + 1} / ${gameData.tasks.length}`;
+    }
+
+    function checkChoice(selectedName) {
+      const task = gameData.tasks[currentTaskIndex];
+      
+      if (selectedName === task.target) {
+        const itemObj = gameData.wardrobe.find(i => i.name === selectedName);
+        if (itemObj) {
+          const equipped = document.getElementById('equippedContainer');
+          const img = document.createElement('img');
+          img.src = itemObj.image;
+          img.className = 'equipped-slot';
+          equipped.appendChild(img);
+        }
+
+        currentTaskIndex++;
+        loadTask();
+      } else {
+        const questBox = document.getElementById('questText');
+        questBox.style.color = '#ff4757';
+        setTimeout(() => { questBox.style.color = 'var(--ui-acc)'; }, 400);
       }
     }
 
-    fillLanguageSelect();
-    ['language','dollImage','questInstruction','wardrobeItems','questions','finalFeedback','feedbackImage'].forEach(id => {
-      $('#'+id).addEventListener('input', refreshPreview);
-      $('#'+id).addEventListener('change', refreshPreview);
-    });
+    function showWinScreen() {
+      document.getElementById('feedbackText').textContent = gameData.finalFeedback;
+      document.getElementById('feedbackImg').src = gameData.feedbackImage;
+      document.getElementById('winModal').classList.add('active');
+    }
 
-    $('#saveBtn').addEventListener('click', publish);
-    $('#testBtn').addEventListener('click', () => alert('Конфигурация валидна!'));
-    $('#copyBtn').addEventListener('click', () => {
-      navigator.clipboard.writeText($('#iframeOut').value);
-      alert('Скопировано в буфер обмена!');
-    });
-
-    refreshPreview();
+    window.onload = initGame;
   </script>
 </body>
 </html>
