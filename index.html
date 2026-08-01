@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Одень бумажную куклу: Свои картинки</title>
+    <title>Генератор игры для Genially</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -32,12 +32,9 @@
             box-sizing: border-box;
         }
         h2 { margin-top: 0; color: var(--primary); text-align: center; }
-        .screen { display: none; }
-        .screen.active { display: block; }
-        
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        input[type="text"], input[type="url"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        input[type="text"], input[type="url"], textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
         button {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
@@ -55,155 +52,54 @@
         .items-list { margin-bottom: 15px; max-height: 180px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
         .item-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
         .item-row input { flex: 1; }
-
-        /* Игровое поле */
-        .game-layout { display: flex; gap: 20px; }
-        .stage {
-            width: 350px;
-            height: 450px;
-            background: #fff;
-            border-radius: 15px;
-            position: relative;
-            border: 2px dashed var(--primary);
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .stage img.base-char {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            position: absolute;
-        }
-        .stage img.layer-item {
-            position: absolute;
-            max-width: 150px;
-            max-height: 150px;
-            object-fit: contain;
-            pointer-events: none;
-        }
-        .wardrobe {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            max-height: 450px;
-            overflow-y: auto;
-            padding: 5px;
-        }
-        .wardrobe-card {
-            background: #fff;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .wardrobe-card:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .wardrobe-card img { width: 60px; height: 60px; object-fit: contain; }
-        .wardrobe-card .word-label { font-size: 12px; margin-top: 5px; color: #666; font-weight: bold; }
-
-        /* Модальное окно квиза */
-        .modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 350px;
-            text-align: center;
-        }
-        .options-grid { display: grid; gap: 10px; margin-top: 15px; }
-        .option-btn { background: #f0f0f2; color: var(--text); border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .option-btn:hover { background: #e4e4e7; }
+        
+        #output-section { display: none; margin-top: 20px; }
+        textarea { height: 120px; resize: vertical; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- ЭКРАН 1: РЕДАКТОР -->
-    <div id="editor-screen" class="screen active">
-        <h2>Редактор задания (Свои картинки)</h2>
-        
-        <div class="form-group">
-            <label>Ссылка на картинку персонажа (PNG с прозрачным фоном):</label>
-            <input type="url" id="char-url" value="https://i.imgur.com/8Km9tWW.png" placeholder="https://example.com/character.png">
-        </div>
-
-        <div class="form-group">
-            <label>Элементы одежды (Английский, Перевод, Ссылка на картинку вещи):</label>
-            <div class="items-list" id="items-list">
-                <!-- Динамические списки вещей -->
-            </div>
-            <div class="item-row">
-                <input type="text" id="new-en" placeholder="English (Hat)">
-                <input type="text" id="new-ru" placeholder="Перевод (Шляпа)">
-                <input type="url" id="new-img" placeholder="URL картинки вещи">
-                <button type="button" onclick="addItem()" style="width: auto; padding: 10px 15px;">+</button>
-            </div>
-        </div>
-
-        <button onclick="startGame()">Запустить игру</button>
+    <h2>Конструктор игры «Одень куклу» для Genially</h2>
+    
+    <div class="form-group">
+        <label>Ссылка на картинку персонажа (PNG с прозрачным фоном):</label>
+        <input type="url" id="char-url" value="https://i.imgur.com/8Km9tWW.png" placeholder="https://example.com/character.png">
     </div>
 
-    <!-- ЭКРАН 2: ИГРА -->
-    <div id="game-screen" class="screen">
-        <h2>Одень персонажа</h2>
-        <div class="game-layout">
-            <div class="stage" id="stage">
-                <img id="stage-character" class="base-char" src="" alt="Character">
-            </div>
-            <div class="wardrobe" id="wardrobe-container">
-                <!-- Карточки одежды -->
-            </div>
+    <div class="form-group">
+        <label>Элементы одежды (Английский, Перевод, Ссылка на картинку вещи):</label>
+        <div class="items-list" id="items-list">
+            <!-- Список динамических вещей -->
         </div>
-        <button onclick="resetGame()" style="margin-top: 20px; background: #6c757d;">Изменить настройки</button>
+        <div class="item-row">
+            <input type="text" id="new-en" placeholder="English (Hat)">
+            <input type="text" id="new-ru" placeholder="Перевод (Шляпа)">
+            <input type="url" id="new-img" placeholder="URL картинки вещи (PNG)">
+            <button type="button" onclick="addItem()" style="width: auto; padding: 10px 15px;">+</button>
+        </div>
     </div>
-</div>
 
-<!-- МОДАЛЬНОЕ ОКНО -->
-<div class="modal" id="quiz-modal">
-    <div class="modal-content">
-        <h3>Переведите слово:</h3>
-        <p id="quiz-question" style="font-size: 18px; font-weight: bold; color: var(--primary);"></p>
-        <div class="options-grid" id="quiz-options"></div>
+    <button onclick="generateGameCode()">Сгенерировать код для Genially</button>
+
+    <div id="output-section">
+        <label>Готовый код (скопируйте и вставьте в Genially через iframe / Insert HTML):</label>
+        <textarea id="output-code" readonly onclick="this.select();"></textarea>
+        <p style="font-size: 13px; color: #666; text-align: center; margin-top: 5px;">Нажмите на поле, чтобы выделить весь код, затем скопируйте его (Ctrl+C / Cmd+C).</p>
     </div>
 </div>
 
 <script>
-    let gameData = {
-        characterUrl: "https://i.imgur.com/8Km9tWW.png",
-        items: [
-            { en: "Hat", ru: "Шляпа", img: "https://i.imgur.com/95Xg4y6.png" },
-            { en: "Glasses", ru: "Очки", img: "https://i.imgur.com/5Xg4y69.png" },
-            { en: "Shoes", ru: "Обувь", img: "https://i.imgur.com/4Xg4y69.png" }
-        ]
-    };
-
-    let activeItem = null;
-
-    function initEditor() {
-        document.getElementById('char-url').value = gameData.characterUrl;
-        renderItems();
-    }
+    let items = [
+        { en: "Hat", ru: "Шляпа", img: "https://i.imgur.com/95Xg4y6.png" },
+        { en: "Glasses", ru: "Очки", img: "https://i.imgur.com/5Xg4y69.png" },
+        { en: "Shoes", ru: "Обувь", img: "https://i.imgur.com/4Xg4y69.png" }
+    ];
 
     function renderItems() {
         const container = document.getElementById('items-list');
         container.innerHTML = '';
-        gameData.items.forEach((item, index) => {
+        items.forEach((item, index) => {
             container.innerHTML += `
                 <div class="item-row">
                     <input type="text" value="${item.en}" disabled>
@@ -220,7 +116,7 @@
         const ru = document.getElementById('new-ru').value.trim();
         const img = document.getElementById('new-img').value.trim();
         if (en && ru && img) {
-            gameData.items.push({ en, ru, img });
+            items.push({ en, ru, img });
             document.getElementById('new-en').value = '';
             document.getElementById('new-ru').value = '';
             document.getElementById('new-img').value = '';
@@ -231,89 +127,120 @@
     }
 
     function removeItem(index) {
-        gameData.items.splice(index, 1);
+        items.splice(index, 1);
         renderItems();
     }
 
-    function startGame() {
-        if (gameData.items.length === 0) {
+    function generateGameCode() {
+        const charUrl = document.getElementById('char-url').value.trim();
+        if (!charUrl) {
+            alert('Укажите ссылку на персонажа!');
+            return;
+        }
+        if (items.length === 0) {
             alert('Добавьте хотя бы один элемент одежды!');
             return;
         }
-        gameData.characterUrl = document.getElementById('char-url').value;
-        
-        // Установка персонажа
+
+        // Формируем чистый автономный HTML-код игры с зашитыми внутри настройками
+        const gameHtml = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: transparent; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; height: 100vh; box-sizing: border-box; }
+.game-layout { display: flex; gap: 15px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); max-width: 750px; width: 100%; }
+.stage { width: 300px; height: 400px; background: #f9f9fb; border-radius: 12px; position: relative; border: 2px dashed #4a90e2; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+.stage img.base-char { max-width: 100%; max-height: 100%; object-fit: contain; position: absolute; }
+.stage img.layer-item { position: absolute; max-width: 140px; max-height: 140px; object-fit: contain; pointer-events: none; }
+.wardrobe { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 400px; overflow-y: auto; padding: 5px; }
+.wardrobe-card { background: #fff; border: 2px solid #eee; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.wardrobe-card:hover { border-color: #4a90e2; transform: translateY(-2px); }
+.wardrobe-card img { width: 50px; height: 50px; object-fit: contain; }
+.word-label { font-size: 11px; margin-top: 4px; color: #666; font-weight: bold; }
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
+.modal-content { background: white; padding: 25px; border-radius: 12px; width: 300px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+.options-grid { display: grid; gap: 8px; margin-top: 12px; }
+.option-btn { background: #f0f0f2; color: #333; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+.option-btn:hover { background: #e4e4e7; }
+</style>
+</head>
+<body>
+<div class="game-layout">
+    <div class="stage" id="stage">
+        <img class="base-char" src="${charUrl}" alt="Character">
+    </div>
+    <div class="wardrobe" id="wardrobe"></div>
+</div>
+<div class="modal" id="quiz-modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color:#4a90e2;">Переведите слово:</h3>
+        <p id="quiz-question" style="font-size: 16px; font-weight: bold;"></p>
+        <div class="options-grid" id="quiz-options"></div>
+    </div>
+</div>
+<script>
+const gameItems = ${JSON.stringify(items)};
+let activeImg = "";
+
+function initGame() {
+    const wardrobe = document.getElementById('wardrobe');
+    wardrobe.innerHTML = '';
+    gameItems.forEach(item => {
+        wardrobe.innerHTML += \`
+            <div class="wardrobe-card" onclick="openQuiz('\${item.en}', '\${item.ru}', '\${item.img}')">
+                <img src="\${item.img}" alt="\${item.en}">
+                <div class="word-label">\${item.en} / \${item.ru}</div>
+            </div>
+        \`;
+    });
+}
+
+function openQuiz(en, ru, img) {
+    activeImg = img;
+    document.getElementById('quiz-question.innerText = \`Как переводится: "\${ru}"?\`;
+    const optionsGrid = document.getElementById('quiz-options');
+    optionsGrid.innerHTML = '';
+    
+    let options = [en];
+    while (options.length < 3 && options.length < gameItems.length) {
+        const randItem = gameItems[Math.floor(Math.random() * gameItems.length)];
+        if (!options.includes(randItem.en)) options.push(randItem.en);
+    }
+    options.sort(() => Math.random() - 0.5);
+
+    options.forEach(opt => {
+        optionsGrid.innerHTML += \`<button class="option-btn" onclick="checkAnswer('\${opt}', '\(-en')">\${opt}</button>\`.replace('\\(-en', en + "')");
+    });
+    document.getElementById('quiz-modal').style.display = 'flex';
+}
+
+function checkAnswer(selected, correct) {
+    document.getElementById('quiz-modal').style.display = 'none';
+    if (selected === correct) {
         const stage = document.getElementById('stage');
-        stage.innerHTML = `<img id="stage-character" class="base-char" src="${gameData.characterUrl}" alt="Character">`;
-
-        // Генерация гардероба
-        const wardrobe = document.getElementById('wardrobe-container');
-        wardrobe.innerHTML = '';
-        gameData.items.forEach(item => {
-            wardrobe.innerHTML += `
-                <div class="wardrobe-card" onclick="openQuiz('${item.en}', '${item.ru}', '${item.img}')">
-                    <img src="${item.img}" alt="${item.en}">
-                    <div class="word-label">${item.en} / ${item.ru}</div>
-                </div>
-            `;
-        });
-
-        document.getElementById('editor-screen').classList.remove('active');
-        document.getElementById('game-screen').classList.add('active');
-    }
-
-    function resetGame() {
-        document.getElementById('game-screen').classList.remove('active');
-        document.getElementById('editor-screen').classList.active = true;
-        document.getElementById('editor-screen').classList.add('active');
-    }
-
-    function openQuiz(en, ru, img) {
-        activeItem = { en, img };
-        document.getElementById('quiz-question').innerText = `Как переводится: "${ru}"?`;
-        
-        const optionsGrid = document.getElementById('quiz-options');
-        optionsGrid.innerHTML = '';
-        
-        let options = [en];
-        while (options.length < 3 && options.length < gameData.items.length) {
-            const randomItem = gameData.items[Math.floor(Math.random() * gameData.items.length)];
-            if (!options.includes(randomItem.en)) {
-                options.push(randomItem.en);
-            }
-        }
-        options.sort(() => Math.random() - 0.5);
-
-        options.loadId = en;
-        options.forEach(opt => {
-            optionsGrid.innerHTML += `<button class="option-btn" onclick="checkAnswer('${opt}', '${en}', '${img}')">${opt}</button>`;
-        });
-
-        document.getElementById('quiz-modal').style.display = 'flex';
-    }
-
-    function checkAnswer(selected, correct, img) {
-        document.getElementById('quiz-modal').style.display = 'none';
-        if (selected === correct) {
-            equipItem(img);
-        } else {
-            alert('Неверно! Попробуйте еще раз.');
-        }
-    }
-
-    function equipItem(imgSrc) {
-        const stage = document.getElementById('stage');
-        // Проверяем, надета ли уже эта вещь
-        if (!document.getElementById(`img-${imgSrc}`)) {
+        if (!document.getElementById('img-' + activeImg)) {
             const itemElem = document.createElement('img');
-            itemElem.src = imgSrc;
+            itemElem.src = activeImg;
             itemElem.className = 'layer-item';
-            itemElem.id = `img-${imgSrc}`;
+            itemElem.id = 'img-' + activeImg;
             stage.appendChild(itemElem);
         }
+    } else {
+        alert('Неверно! Попробуйте еще раз.');
+    }
+}
+initGame();
+<\/script>
+</body>
+</html>`;
+
+        // Выводим сгенерированный код в textarea
+        document.getElementById('output-code').value = gameHtml;
+        document.getElementById('output-section').style.display = 'block';
     }
 
-    initEditor();
+    renderItems();
 </script>
 
 </body>
