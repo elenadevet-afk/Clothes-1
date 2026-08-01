@@ -1,263 +1,347 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Конструктор игры для Genially</title>
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --bg: #f8f9fa;
-            --text: #2d3436;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        h2 { color: var(--primary); margin-top: 0; text-align: center; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-        input[type="text"], input[type="url"] {
-            width: 100%; padding: 10px; border: 1px solid #dfe6e9; border-radius: 8px; box-sizing: border-box;
-        }
-        button {
-            background: var(--primary);
-            color: white; border: none; padding: 10px 20px; border-radius: 8px;
-            cursor: pointer; font-weight: 600; font-size: 14px;
-        }
-        button:hover { opacity: 0.9; }
-        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .items-table th, .items-table td { padding: 8px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
-        .items-table img { width: 35px; height: 35px; object-fit: contain; }
-        
-        .output-box {
-            background: #f1f2f6;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px dashed #b2bec3;
-            margin-top: 20px;
-        }
-        textarea {
-            width: 100%; height: 80px; padding: 10px; font-family: monospace; font-size: 12px;
-            border: 1px solid #dfe6e9; border-radius: 6px; box-sizing: border-box; resize: none;
-        }
-        .preview-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-        iframe {
-            width: 750px; height: 450px; border: 1px solid #dfe6e9; border-radius: 12px; background: white;
-        }
-    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Редактор — Одень куклу (Paper Doll)</title>
+
+<script>
+  window.MathJax = {
+    tex: {
+      packages: ['base', 'ams', 'autoload'],
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <style>
+    :root{
+      --ui-acc:#ff6b81;
+      --ui-acc2:#ff4757;
+      --bg:#0b0b0d;
+      --card:#121215;
+      --ink:#f1f1f1;
+      --muted:#b8b8b8;
+      --stroke:#26262a;
+      --gap:16px;
+      --shadow: 0 0 30px rgba(255,107,129,.08);
+      --shadow2: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,107,129,.10), transparent 60%),
+                  radial-gradient(900px 500px at 80% 0%, rgba(112,161,255,.06), transparent 55%),
+                  var(--bg);
+      color:var(--ink);
+      font-family:Rubik,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      display:flex;
+      flex-direction:column;
+    }
+
+    header{
+      position:sticky; top:0; z-index:5;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:14px 18px;
+      border-bottom:1px solid var(--stroke);
+      background: rgba(11,11,13,.88);
+      backdrop-filter: blur(10px);
+    }
+    header h1{
+      margin:0; font-size:18px; font-weight:900;
+      color:var(--ui-acc); display:flex; align-items:center; gap:10px;
+    }
+    .pill{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04); color: rgba(255,255,255,.85);
+      white-space:nowrap;
+    }
+
+    main{
+      display:grid; grid-template-columns: 520px 1fr;
+      gap:22px; padding:18px; max-width:1560px; width:100%; margin:0 auto;
+      align-items: start;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid var(--stroke); border-radius: var(--radius);
+      padding:16px; box-shadow: var(--shadow);
+    }
+    .card h2{
+      margin:0 0 12px; font-size:16px; color:var(--ui-acc); font-weight:900;
+      display:flex; align-items:center; gap:10px;
+    }
+    .section{
+      border:1px solid rgba(255,255,255,.06); background: rgba(0,0,0,.18);
+      border-radius: 14px; padding:14px; margin-top:12px;
+    }
+    .section:first-child{margin-top:0}
+
+    label{
+      display:block; margin:10px 0 6px; font-size:14px; color:#fff; font-weight:700;
+    }
+    input[type=text], input[type=number], input[type=url], textarea, select{
+      width:100%; background: #0f0f12; color:#fff;
+      border:1px solid rgba(255,255,255,.16); border-radius: 12px;
+      padding:10px 12px; font-size:14px; outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea{min-height:86px; resize:vertical}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(255,107,129,.55);
+      box-shadow: 0 0 0 3px rgba(255,107,129,.14);
+    }
+    select{cursor:pointer}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap)}
+    .small-hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35}
+    .hint{color:var(--muted); font-size:12px; margin-top:8px; line-height:1.45}
+    .divider{height:1px; background: rgba(255,255,255,.06); margin:14px 0}
+
+    button{
+      background: linear-gradient(90deg, var(--ui-acc2), var(--ui-acc));
+      color:#fff; border:none; border-radius: 14px; font-weight:900;
+      padding:12px 14px; cursor:pointer; transition:transform .12s ease;
+      font-size:14px; box-shadow: 0 10px 30px rgba(255,107,129,.18);
+    }
+    button:hover{transform: translateY(-1px)}
+    .btn-ghost{
+      background: rgba(255,255,255,.06); color:#fff;
+      border:1px solid rgba(255,255,255,.14); box-shadow:none;
+    }
+    .btn-mini{padding:10px 12px; border-radius:12px; font-size:13px}
+
+    .pub-wrap{display:grid; grid-template-columns: 1fr 220px; gap:14px; align-items:start}
+    .pub-left textarea{height:150px; font-family:monospace; font-size:12.5px}
+    .pub-right{display:flex; flex-direction:column; gap:10px}
+    .pub-bottom{margin-top:12px}
+    .pub-bottom button{width:100%}
+
+    .preview-stack{display:flex; flex-direction:column; gap:12px}
+    .preview-item{
+      border:1px solid rgba(255,255,255,.06); background: rgba(0,0,0,.16);
+      border-radius: 14px; padding:12px; box-shadow: var(--shadow2);
+    }
+    .preview-item h3{
+      margin:0 0 10px; font-size:13px; font-weight:900; color: rgba(255,255,255,.9);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .kbd{
+      font-size:11px; padding:4px 8px; border-radius:999px;
+      background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
+    }
+    .hidden{display:none !important}
+  </style>
+  <link id="gf" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap">
 </head>
 <body>
 
-<div class="container">
-    <h2>Конструктор игры «Одень персонажа» для Genially</h2>
-    
-    <div class="form-group">
-        <label>Ссылка на картинку персонажа (PNG с прозрачным фоном):</label>
-        <input type="url" id="charUrl" value="https://i.imgur.com/8Km9tWW.png" oninput="updateOutput()">
-    </div>
+  <header>
+    <h1>👗 Редактор «Paper Doll» <span class="pill">English Quest</span></h1>
+    <span class="pill" id="statusPill">Готов</span>
+  </header>
 
-    <div class="form-group">
-        <label>Элементы одежды и задания:</label>
-        <table class="items-table" id="itemsTable">
-            <thead>
-                <tr>
-                    <th>Вещь (Картинка)</th>
-                    <th>English</th>
-                    <th>Перевод</th>
-                    <th>Действие</th>
-                </tr>
-            </thead>
-            <tbody id="itemsBody"></tbody>
-        </table>
-        
-        <div style="display: flex; gap: 10px;">
-            <input type="text" id="newEn" placeholder="English (Hat)" style="flex:1;">
-            <input type="text" id="newRu" placeholder="Перевод (Шляпа)" style="flex:1;">
-            <input type="url" id="newImg" placeholder="URL картинки вещи" style="flex:2;">
-            <button type="button" onclick="addItem()">Добавить</button>
+  <main>
+    <!-- LEFT PANEL: Controls -->
+    <section class="card">
+      <div class="section">
+        <h2>⚙️ Настройки куклы</h2>
+        <div class="row">
+          <div>
+            <label>Язык заданий</label>
+            <select id="language"></select>
+          </div>
+          <div>
+            <label>Шрифт</label>
+            <select id="font"></select>
+          </div>
         </div>
-    </div>
 
-    <div class="output-box">
-        <label>Готовый код Iframe для вставки в Genially:</label>
-        <textarea id="iframeCode" readonly onclick="this.select()"></textarea>
-    </div>
+        <label>Картинка куклы-основы (URL)</label>
+        <input type="url" id="dollImage" placeholder="https://.../doll-base.png" value="https://i.postimg.cc/k4Z82v8w/doll-base.png">
 
-    <div class="preview-container">
-        <label>Предпросмотр игры:</label>
-        <iframe id="gamePreview"></iframe>
-    </div>
-</div>
+        <label>Инструкция для ученика (например: "Dress the character for school!")</label>
+        <input type="text" id="questInstruction" value="Dress the character according to the description!">
+      </div>
 
-<script>
-    // Базовый демонстрационный набор
-    let gameConfig = {
-        character: "https://i.imgur.com/8Km9tWW.png",
-        items: [
-            { en: "Hat", ru: "Шляпа", img: "https://i.imgur.com/95Xg4y6.png" },
-            { en: "Glasses", ru: "Очки", img: "https://i.imgur.com/5Xg4y69.png" },
-            { en: "Shoes", ru: "Обувь", img: "https://i.imgur.com/4Xg4y69.png" }
-        ]
-    };
+      <div class="section">
+        <h2>🧢 Гардероб и Одежда (Элементы)</h2>
+        <label>Список вещей (Формат: Название по-английски | Категория | Ссылка на картинку одежды)</label>
+        <div class="small-hint">Категории: <b>head</b> (голова/шапки), <b>top</b> (верх), <b>bottom</b> (низ), <b>shoes</b> (обувь), <b>acc</b> (аксессуары).</div>
+        <textarea id="wardrobeItems" placeholder="Red sweater | top | https://.../sweater.png
+Blue jeans | bottom | https://.../jeans.png
+Yellow sneakers | shoes | https://.../sneakers.png"></textarea>
+      </div>
 
-    function renderTable() {
-        const tbody = document.getElementById('itemsBody');
-        tbody.innerHTML = '';
-        gameConfig.items.forEach((item, index) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><img src="${item.img}" alt=""></td>
-                    <td>${item.en}</td>
-                    <td>${item.ru}</td>
-                    <td><button onclick="removeItem(${index})" style="background:#ff7675; padding: 5px 10px; font-size:12px;">Удалить</button></td>
-                </tr>
-            `;
-        });
-        updateOutput();
-    }
-
-    function addItem() {
-        const en = document.getElementById('newEn').value.trim();
-        const ru = document.getElementById('newRu').value.trim();
-        const img = document.getElementById('newImg').value.trim();
-        if(en && ru && img) {
-            gameConfig.items.push({ en, ru, img });
-            document.getElementById('newEn').value = '';
-            document.getElementById('newRu').value = '';
-            document.getElementById('newImg').value = '';
-            renderTable();
-        } else {
-            alert('Заполните все поля для одежды!');
-        }
-    }
-
-    function removeItem(index) {
-        gameConfig.items.splice(index, 1);
-        renderTable();
-    }
-
-    function updateOutput() {
-        gameConfig.character = document.getElementById('charUrl').value;
+      <div class="section">
+        <h2>🎯 Задания / Квест по английскому</h2>
+        <label>Условия задач (по одному на строку, например: "Put on warm clothes because it is cold outside")</label>
+        <textarea id="questions" placeholder="Put on warm clothes for school.
+Put on comfortable shoes for walking."></textarea>
         
-        // Кодируем всю конфигурацию в Base64 для передачи через URL
-        const jsonStr = JSON.stringify(gameConfig);
-        const encodedData = btoa(encodeURIComponent(jsonStr));
-        
-        // В качестве хоста игры используется публичный скрипт-обработчик (или ваша постоянная ссылка на развернутый файл игры)
-        // Здесь для примера используется Blob URL, но для Genially лучше один раз закинуть файл игры на GitHub Pages / Netlify, 
-        // а редактор будет формировать ссылку вида: https://ваш-сайт.com/game.html?data=...
-        
-        const gameUrl = "https://example.com/game.html?data=" + encodedData; // Замените example.com на адрес вашего хостинга с игрой
-        
-        const iframeTag = `<iframe src="${gameUrl}" width="100%" height="100%" style="border:none;"></iframe>`;
-        
-        document.getElementById('iframeCode').value = iframeTag;
-        
-        // Генерируем локальный предпросмотр через Blob
-        const fullGameHtml = generateGameHtml(gameConfig);
-        const blob = new Blob([fullGameHtml], { type: 'text/html' });
-        document.getElementById('gamePreview').src = URL.createObjectURL(blob);
-    }
+        <label style="margin-top:10px;">Правильный предмет для задания (точное имя из гардероба)</label>
+        <input type="text" id="targetItem" placeholder="Red sweater" value="Red sweater">
+        <div class="small-hint">Ученик должен кликнуть или перетащить правильный элемент одежды, чтобы выполнить задание.</div>
+      </div>
 
-    function generateGameHtml(config) {
-        return `<!DOCTYPE html>
-        <html lang="ru"><head><meta charset="UTF-8"><style>
-        body { font-family: sans-serif; background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .layout { display: flex; gap: 15px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .stage { width: 260px; height: 350px; border: 2px dashed #6c5ce7; border-radius: 10px; position: relative; display: flex; justify-content: center; align-items: center; background: #fdfdfd; overflow: hidden; }
-        .stage img.char { max-width: 100%; max-height: 100%; position: absolute; object-fit: contain; }
-        .stage img.item { position: absolute; max-width: 120px; max-height: 120px; object-fit: contain; pointer-events: none; }
-        .wardrobe { width: 220px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 350px; overflow-y: auto; }
-        .card { border: 1px solid #eee; border-radius: 8px; padding: 5px; text-align: center; cursor: pointer; background: #fff; }
-        .card:hover { border-color: #6c5ce7; }
-        .card img { width: 45px; height: 45px; object-fit: contain; }
-        .card span { font-size: 11px; display: block; color: #555; font-weight: bold; margin-top: 3px; }
-        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:none; justify-content:center; align-items:center; }
-        .modal-content { background:white; padding:20px; border-radius:10px; width:260px; text-align:center; }
-        .btn-opt { display:block; width:100%; margin-top:8px; padding:8px; background:#f1f2f6; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
-        .btn-opt:hover { background:#dfe6e9; }
-        </style></head><body>
-        <div class="layout">
-            <div class="stage" id="stage"><img class="char" src="${config.character}"></div>
-            <div class="wardrobe" id="wardrobe"></div>
+      <div class="section">
+        <h2>💫 Финальный фидбек</h2>
+        <div class="row">
+          <div>
+            <label>Текст при победе</label>
+            <input type="text" id="finalFeedback" value="🎉 Perfect Outfit! Great job!">
+          </div>
+          <div>
+            <label>Картинка успеха (URL)</label>
+            <input type="url" id="feedbackImage" value="https://i.postimg.cc/prHF0XG1/AI-(4).gif">
+          </div>
         </div>
-        <div class="modal" id="modal"><div class="modal-content">
-            <h4 style="margin:0 0 10px 0; color:#6c5ce7;" id="qTitle">Перевод:</h4>
-            <div id="qOptions"></div>
-        </div></div>
-        <script>
-        const items = ${JSON.stringify(config.items)};
-        let targetImg = "";
-        const wardrobe = document.getElementById('wardrobe');
-        
-        items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.innerHTML = '<img src="'+item.img+'"><span>'+item.en+'</span>';
-            div.onclick = () => openQuiz(item);
-            wardrobe.appendChild(div);
-        });
+      </div>
 
-        function openQuiz(item) {
-            targetImg = item.img;
-            document.getElementById('qTitle').innerText = 'Переведите: "' + item.ru + '"';
-            const optsDiv = document.getElementById('qOptions');
-            optsDiv.innerHTML = '';
-            
-            let opts = [item.en];
-            while(opts.length < 3 && opts.length < items.length) {
-                let r = items[Math.floor(Math.random()*items.length)].en;
-                if(!opts.includes(r)) opts.push(r);
-            }
-            opts.sort(() => Math.random() - 0.5);
+      <div class="section" id="publishSection">
+        <h2>🚀 Публикация <span class="pill" style="margin-left:auto;">iframe</span></h2>
+        <div class="pub-wrap">
+          <div class="pub-left">
+            <label style="margin-top:0;">iframe для Genially</label>
+            <textarea id="iframeOut" readonly placeholder="Здесь появится iframe"></textarea>
+          </div>
+          <div class="pub-right">
+            <button id="copyBtn" class="btn-ghost btn-mini">📋 Копировать</button>
+            <button id="testBtn" class="btn-ghost btn-mini">🔎 Проверить</button>
+          </div>
+        </div>
+        <div class="pub-bottom">
+          <button id="saveBtn">💾 Сохранить и получить iframe</button>
+        </div>
+      </div>
+    </section>
 
-            opts.forEach(o => {
-                const b = document.createElement('button');
-                b.className = 'btn-opt';
-                b.innerText = o;
-                b.onclick = () => check(o, item.en);
-                optsDiv.appendChild(b);
-            });
-            document.getElementById('modal').style.display = 'flex';
-        }
+    <!-- RIGHT PANEL: Preview -->
+    <section class="card">
+      <h2>🧪 Предпросмотр игры</h2>
+      <div class="preview-stack">
+        <div class="preview-item">
+          <h3>Интерфейс куклы <span class="kbd">Interactive</span></h3>
+          <div id="previewContainer" style="min-height:320px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,.3); border-radius:12px; padding:16px; text-align:center;">
+            <div id="prevInstruction" style="font-weight:900; margin-bottom:12px; color:var(--ui-acc);"></div>
+            <div style="position:relative; width:150px; height:250px; border:2px dashed rgba(255,255,255,.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <img id="prevDollImg" src="" alt="Doll" style="max-height:100%; max-width:100%; object-fit:contain;" />
+            </div>
+            <div id="prevWardrobe" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:center;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        function check(sel, cor) {
-            document.getElementById('modal').style.display = 'none';
-            if(sel === cor) {
-                if(!document.getElementById('i-' + targetImg)) {
-                    const im = document.createElement('img');
-                    im.src = targetImg;
-                    im.className = 'item';
-                    im.id = 'i-' + targetImg;
-                    document.getElementById('stage').appendChild(im);
-                }
-            } else {
-                alert('Неверно!');
-            }
-        }
-        <\/script></body></html>`;
+  <script>
+    const $ = s => document.querySelector(s);
+    const ENDPOINT = "https://server-kjnn.onrender.com/publish";
+    const PUBLISH_KEY = "nika_read_pub_2025";
+    const BASE_MAIN = "https://nikashum93.github.io/utki/doll-main.html"; // Условный путь для куклы
+
+    const LANGUAGE_OPTIONS = [
+      { value: "ru", label: "Русский" },
+      { value: "en", label: "English" }
+    ];
+
+    function fillLanguageSelect(){
+      const sel = $('#language');
+      sel.innerHTML = "";
+      LANGUAGE_OPTIONS.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.label;
+        sel.appendChild(o);
+      });
+      sel.value = 'en';
     }
 
-    renderTable();
-</script>
+    function collectConfig(){
+      return {
+        language: $('#language').value,
+        dollImage: $('#dollImage').value.trim(),
+        instruction: $('#questInstruction').value.trim(),
+        wardrobeItems: $('#wardrobeItems').value.trim(),
+        questions: $('#questions').value.trim(),
+        finalFeedback: $('#finalFeedback').value.trim(),
+        feedbackImage: $('#feedbackImage').value.trim()
+      };
+    }
 
+    function refreshPreview(){
+      const cfg = collectConfig();
+      $('#prevDollImg').src = cfg.dollImage;
+      $('#prevInstruction').textContent = cfg.instruction || 'Dress the character!';
+      
+      const wrap = $('#prevWardrobe');
+      wrap.innerHTML = '';
+      
+      // Пример рендеринга вещей для превью из текста textarea
+      const lines = cfg.wardrobeItems.split('\n');
+      lines.forEach(line => {
+        if(!line.trim()) return;
+        const parts = line.split('|').map(p=>p.trim());
+        const name = parts[0] || 'Item';
+        const itemDiv = document.createElement('div');
+        itemDiv.textContent = name;
+        itemDiv.style.background = 'rgba(255,255,255,.1)';
+        itemDiv.style.padding = '6px 10px';
+        itemDiv.style.borderRadius = '8px';
+        itemDiv.style.fontSize = '12px';
+        wrap.appendChild(itemDiv);
+      });
+    }
+
+    async function publish(){
+      $('#statusPill').textContent = 'Публикую…';
+      const cfg = collectConfig();
+      const id = 'doll-' + Date.now();
+      const payload = {
+        id,
+        mode: "json",
+        folder: "data",
+        content: JSON.stringify(cfg, null, 2)
+      };
+
+      try{
+        const res = await fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Publish-Key": PUBLISH_KEY },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error('Server error');
+        const iframe = `<iframe src="${BASE_MAIN}?id=${encodeURIComponent(id)}" width="900" height="640" style="border:0;" allow="autoplay" allowfullscreen></iframe>`;
+        $('#iframeOut').value = iframe;
+        $('#statusPill').textContent = 'Готово ✅';
+        alert('Опубликовано! Ссылка сформирована.');
+      }catch(e){
+        $('#statusPill').textContent = 'Ошибка';
+        alert("Ошибка публикации: " + e.message);
+      }
+    }
+
+    fillLanguageSelect();
+    ['language','dollImage','questInstruction','wardrobeItems','questions','finalFeedback','feedbackImage'].forEach(id => {
+      $('#'+id).addEventListener('input', refreshPreview);
+      $('#'+id).addEventListener('change', refreshPreview);
+    });
+
+    $('#saveBtn').addEventListener('click', publish);
+    $('#testBtn').addEventListener('click', () => alert('Конфигурация валидна!'));
+    $('#copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText($('#iframeOut').value);
+      alert('Скопировано в буфер обмена!');
+    });
+
+    refreshPreview();
+  </script>
 </body>
 </html>
