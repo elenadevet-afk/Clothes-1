@@ -24,7 +24,7 @@
                   radial-gradient(900px 500px at 80% 0%, rgba(112,161,255,.1), transparent 55%),
                   var(--bg);
       color:var(--ink);
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: Rubik, system-ui, -apple-system, sans-serif;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -202,7 +202,6 @@
       margin: 0;
       color: var(--ui-acc);
       font-size: 24px;
-      text-align: center;
     }
   </style>
 </head>
@@ -226,7 +225,9 @@
       <!-- Панель гардероба -->
       <div class="wardrobe-panel">
         <div class="wardrobe-title">Wardrobe</div>
-        <div class="items-grid" id="itemsGrid"></div>
+        <div class="items-grid" id="itemsGrid">
+          <!-- Сюда динамически подгружаются вещи -->
+        </div>
       </div>
     </div>
 
@@ -238,7 +239,7 @@
   </div>
 
   <script>
-    // НАСТРОЙКИ ИГРЫ: Вы можете менять тексты заданий, названия вещей и ссылки на картинки прямо здесь.
+    // Пример игровых данных (задания + гардероб)
     const gameData = {
       dollImage: "https://i.postimg.cc/k4Z82v8w/doll-base.png",
       feedbackImage: "https://i.postimg.cc/prHF0XG1/AI-(4).gif",
@@ -278,10 +279,10 @@
           <span>${item.name}</span>
         `;
 
-        // Клик для выбора (удобно для планшетов и телефонов)
+        // Клик для выбора (альтернатива перетаскиванию для мобильных и планшетов)
         div.addEventListener('click', () => checkChoice(item.name));
 
-        // Перетаскивание (Drag and Drop для ПК)
+        // Логика Drag and Drop
         div.addEventListener('dragstart', (e) => {
           e.dataTransfer.setData('text/plain', item.name);
         });
@@ -289,6 +290,7 @@
         grid.appendChild(div);
       });
 
+      // Настройка зоны сброса (Drop Zone)
       const dropZone = document.getElementById('dropZone');
       dropZone.addEventListener('dragover', (e) => e.preventDefault());
       dropZone.addEventListener('drop', (e) => {
@@ -312,6 +314,7 @@
       const task = gameData.tasks[currentTaskIndex];
       
       if (selectedName === task.target) {
+        // Находим вещь и отображаем ее на кукле
         const itemObj = gameData.wardrobe.find(i => i.name === selectedName);
         if (itemObj) {
           const equipped = document.getElementById('equippedContainer');
@@ -324,6 +327,7 @@
         currentTaskIndex++;
         loadTask();
       } else {
+        // Эффект ошибки (легкая тряска или подсветка)
         const questBox = document.getElementById('questText');
         questBox.style.color = '#ff4757';
         setTimeout(() => { questBox.style.color = 'var(--ui-acc)'; }, 400);
