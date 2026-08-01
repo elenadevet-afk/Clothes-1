@@ -54,7 +54,7 @@
         .item-row input { flex: 1; }
         
         #output-section { display: none; margin-top: 20px; }
-        textarea { height: 120px; resize: vertical; font-family: monospace; font-size: 12px; }
+        textarea { height: 140px; resize: vertical; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -69,9 +69,7 @@
 
     <div class="form-group">
         <label>Элементы одежды (Английский, Перевод, Ссылка на картинку вещи):</label>
-        <div class="items-list" id="items-list">
-            <!-- Список динамических вещей -->
-        </div>
+        <div class="items-list" id="items-list"></div>
         <div class="item-row">
             <input type="text" id="new-en" placeholder="English (Hat)">
             <input type="text" id="new-ru" placeholder="Перевод (Шляпа)">
@@ -85,7 +83,7 @@
     <div id="output-section">
         <label>Готовый код (скопируйте и вставьте в Genially через iframe / Insert HTML):</label>
         <textarea id="output-code" readonly onclick="this.select();"></textarea>
-        <p style="font-size: 13px; color: #666; text-align: center; margin-top: 5px;">Нажмите на поле, чтобы выделить весь код, затем скопируйте его (Ctrl+C / Cmd+C).</p>
+        <p style="font-size: 13px; color: #666; text-align: center; margin-top: 5px;">Нажмите на поле, чтобы выделить весь код, затем скопируйте его.</p>
     </div>
 </div>
 
@@ -142,7 +140,6 @@
             return;
         }
 
-        // Формируем чистый автономный HTML-код игры с зашитыми внутри настройками
         const gameHtml = `<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -187,18 +184,17 @@ function initGame() {
     const wardrobe = document.getElementById('wardrobe');
     wardrobe.innerHTML = '';
     gameItems.forEach(item => {
-        wardrobe.innerHTML += \`
-            <div class="wardrobe-card" onclick="openQuiz('\${item.en}', '\${item.ru}', '\${item.img}')">
-                <img src="\${item.img}" alt="\${item.en}">
-                <div class="word-label">\${item.en} / \${item.ru}</div>
-            </div>
-        \`;
+        const card = document.createElement('div');
+        card.className = 'wardrobe-card';
+        card.innerHTML = '<img src="' + item.img + '" alt="' + item.en + '"><div class="word-label">' + item.en + ' / ' + item.ru + '</div>';
+        card.onclick = function() { openQuiz(item.en, item.ru, item.img); };
+        wardrobe.appendChild(card);
     });
 }
 
 function openQuiz(en, ru, img) {
     activeImg = img;
-    document.getElementById('quiz-question.innerText = \`Как переводится: "\${ru}"?\`;
+    document.getElementById('quiz-question').innerText = 'Как переводится: "' + ru + '"?';
     const optionsGrid = document.getElementById('quiz-options');
     optionsGrid.innerHTML = '';
     
@@ -207,10 +203,14 @@ function openQuiz(en, ru, img) {
         const randItem = gameItems[Math.floor(Math.random() * gameItems.length)];
         if (!options.includes(randItem.en)) options.push(randItem.en);
     }
-    options.sort(() => Math.random() - 0.5);
+    options.sort(function() { return Math.random() - 0.5; });
 
-    options.forEach(opt => {
-        optionsGrid.innerHTML += \`<button class="option-btn" onclick="checkAnswer('\${opt}', '\(-en')">\${opt}</button>\`.replace('\\(-en', en + "')");
+    options.forEach(function(opt) {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = function() { checkAnswer(opt, en); };
+        optionsGrid.appendChild(btn);
     });
     document.getElementById('quiz-modal').style.display = 'flex';
 }
@@ -235,7 +235,6 @@ initGame();
 </body>
 </html>`;
 
-        // Выводим сгенерированный код в textarea
         document.getElementById('output-code').value = gameHtml;
         document.getElementById('output-section').style.display = 'block';
     }
