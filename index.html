@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Одень персонажа: Английский язык</title>
+    <title>Одень бумажную куклу: Свои картинки</title>
     <style>
         :root {
-            --primary: #ff6b8b;
-            --secondary: #ff8e53;
-            --bg: #f9f9fb;
+            --primary: #4a90e2;
+            --secondary: #50e3c2;
+            --bg: #f4f7f6;
             --text: #333;
         }
         body {
@@ -24,7 +24,7 @@
         }
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             background: white;
             padding: 30px;
             border-radius: 20px;
@@ -35,10 +35,9 @@
         .screen { display: none; }
         .screen.active { display: block; }
         
-        /* Стили редактора */
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input[type="text"], input[type="url"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
@@ -53,34 +52,36 @@
         }
         button:hover { opacity: 0.9; }
 
-        .pairs-list { margin-bottom: 15px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
-        .pair-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        .items-list { margin-bottom: 15px; max-height: 180px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        .item-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        .item-row input { flex: 1; }
 
-        /* Стили игры */
-        .game-layout { display: flex; gap: 20px; position: relative; }
+        /* Игровое поле */
+        .game-layout { display: flex; gap: 20px; }
         .stage {
             width: 350px;
             height: 450px;
-            background: #fff0f3;
+            background: #fff;
             border-radius: 15px;
             position: relative;
+            border: 2px dashed var(--primary);
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            border: 2px dashed var(--primary);
-            overflow: hidden;
         }
-        .character {
-            font-size: 100px;
+        .stage img.base-char {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
             position: absolute;
-            user-select: none;
         }
-        .equipped-item {
+        .stage img.layer-item {
             position: absolute;
-            font-size: 80px;
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.2s;
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: contain;
+            pointer-events: none;
         }
         .wardrobe {
             flex: 1;
@@ -91,7 +92,7 @@
             overflow-y: auto;
             padding: 5px;
         }
-        .clothing-item {
+        .wardrobe-card {
             background: #fff;
             border: 2px solid #eee;
             border-radius: 10px;
@@ -104,9 +105,9 @@
             align-items: center;
             justify-content: center;
         }
-        .clothing-item:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .clothing-item .emoji { font-size: 40px; }
-        .clothing-item .name { font-size: 12px; margin-top: 5px; color: #666; }
+        .wardrobe-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .wardrobe-card img { width: 60px; height: 60px; object-fit: contain; }
+        .wardrobe-card .word-label { font-size: 12px; margin-top: 5px; color: #666; font-weight: bold; }
 
         /* Модальное окно квиза */
         .modal {
@@ -116,6 +117,7 @@
             display: none;
             justify-content: center;
             align-items: center;
+            z-index: 100;
         }
         .modal-content {
             background: white;
@@ -125,7 +127,7 @@
             text-align: center;
         }
         .options-grid { display: grid; gap: 10px; margin-top: 15px; }
-        .option-btn { background: #f0f0f2; color: var(--text); border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
+        .option-btn { background: #f0f0f2; color: var(--text); border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .option-btn:hover { background: #e4e4e7; }
     </style>
 </head>
@@ -134,26 +136,23 @@
 <div class="container">
     <!-- ЭКРАН 1: РЕДАКТОР -->
     <div id="editor-screen" class="screen active">
-        <h2>Настройка задания</h2>
+        <h2>Редактор задания (Свои картинки)</h2>
         
         <div class="form-group">
-            <label>Выберите персонажа:</label>
-            <select id="char-select">
-                <option value="👧">Девочка (👧)</option>
-                <option value="👦">Мальчик (👦)</option>
-                <option value="🐱">Котёнок (🐱)</option>
-            </select>
+            <label>Ссылка на картинку персонажа (PNG с прозрачным фоном):</label>
+            <input type="url" id="char-url" value="https://i.imgur.com/8Km9tWW.png" placeholder="https://example.com/character.png">
         </div>
 
         <div class="form-group">
-            <label>Вопросы и слова для тренировки (Английский - Перевод):</label>
-            <div class="pairs-list" id="pairs-list">
-                <!-- Динамические пары -->
+            <label>Элементы одежды (Английский, Перевод, Ссылка на картинку вещи):</label>
+            <div class="items-list" id="items-list">
+                <!-- Динамические списки вещей -->
             </div>
-            <div class="pair-item">
-                <input type="text" id="new-en" placeholder="English (e.g., Hat)">
-                <input type="text" id="new-ru" placeholder="Перевод (например, Шляпа)">
-                <button type="button" onclick="addPair()" style="width: auto; padding: 10px 15px;">+</button>
+            <div class="item-row">
+                <input type="text" id="new-en" placeholder="English (Hat)">
+                <input type="text" id="new-ru" placeholder="Перевод (Шляпа)">
+                <input type="url" id="new-img" placeholder="URL картинки вещи">
+                <button type="button" onclick="addItem()" style="width: auto; padding: 10px 15px;">+</button>
             </div>
         </div>
 
@@ -165,99 +164,96 @@
         <h2>Одень персонажа</h2>
         <div class="game-layout">
             <div class="stage" id="stage">
-                <div class="character" id="display-char">👧</div>
+                <img id="stage-character" class="base-char" src="" alt="Character">
             </div>
             <div class="wardrobe" id="wardrobe-container">
-                <!-- Одежда подтягивается из пар -->
+                <!-- Карточки одежды -->
             </div>
         </div>
-        <button onclick="resetGame()" style="margin-top: 20px; background: #6c757d;">Настроить заново</button>
+        <button onclick="resetGame()" style="margin-top: 20px; background: #6c757d;">Изменить настройки</button>
     </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ВОПРОСА -->
+<!-- МОДАЛЬНОЕ ОКНО -->
 <div class="modal" id="quiz-modal">
     <div class="modal-content">
-        <h3>Ответьте на вопрос:</h3>
-        <p id="quiz-question" style="font-size: 18px; font-weight: bold;"></p>
+        <h3>Переведите слово:</h3>
+        <p id="quiz-question" style="font-size: 18px; font-weight: bold; color: var(--primary);"></p>
         <div class="options-grid" id="quiz-options"></div>
     </div>
 </div>
 
 <script>
-    // Базовый набор одежды, привязанный к словам (можно расширять)
-    const itemsDatabase = {
-        "Hat": "👒", "Cap": "🧢", "Shirt": "👕", "Dress": "👗", 
-        "Jacket": "🧥", "Shoes": "👟", "Glasses": "👓", "Scarf": "🧣",
-        "Pants": "👖", "Skirt": "👚"
-    };
-
     let gameData = {
-        character: "👧",
-        pairs: [
-            { en: "Hat", ru: "Шляпа" },
-            { en: "Glasses", ru: "Очки" },
-            { en: "Dress", ru: "Платье" },
-            { en: "Shoes", ru: "Обувь" }
+        characterUrl: "https://i.imgur.com/8Km9tWW.png",
+        items: [
+            { en: "Hat", ru: "Шляпа", img: "https://i.imgur.com/95Xg4y6.png" },
+            { en: "Glasses", ru: "Очки", img: "https://i.imgur.com/5Xg4y69.png" },
+            { en: "Shoes", ru: "Обувь", img: "https://i.imgur.com/4Xg4y69.png" }
         ]
     };
 
-    let activeItemKey = null;
+    let activeItem = null;
 
     function initEditor() {
-        renderPairs();
+        document.getElementById('char-url').value = gameData.characterUrl;
+        renderItems();
     }
 
-    function renderPairs() {
-        const container = document.getElementById('pairs-list');
+    function renderItems() {
+        const container = document.getElementById('items-list');
         container.innerHTML = '';
-        gameData.pairs.forEach((pair, index) => {
+        gameData.items.forEach((item, index) => {
             container.innerHTML += `
-                <div class="pair-item">
-                    <input type="text" value="${pair.en}" disabled>
-                    <input type="text" value="${pair.ru}" disabled>
-                    <button type="button" onclick="removePair(${index})" style="background:#ff4757; width: auto; padding: 10px 15px;">×</button>
+                <div class="item-row">
+                    <input type="text" value="${item.en}" disabled>
+                    <input type="text" value="${item.ru}" disabled>
+                    <input type="text" value="${item.img}" disabled style="font-size: 11px; color: #888;">
+                    <button type="button" onclick="removeItem(${index})" style="background:#ff4757; width: auto; padding: 10px 15px;">×</button>
                 </div>
             `;
         });
     }
 
-    function addPair() {
+    function addItem() {
         const en = document.getElementById('new-en').value.trim();
         const ru = document.getElementById('new-ru').value.trim();
-        if (en && ru) {
-            gameData.pairs.push({ en, ru });
+        const img = document.getElementById('new-img').value.trim();
+        if (en && ru && img) {
+            gameData.items.push({ en, ru, img });
             document.getElementById('new-en').value = '';
             document.getElementById('new-ru').value = '';
-            renderPairs();
+            document.getElementById('new-img').value = '';
+            renderItems();
+        } else {
+            alert('Заполните все поля для элемента одежды!');
         }
     }
 
-    function removePair(index) {
-        gameData.pairs.splice(index, 1);
-        renderPairs();
+    function removeItem(index) {
+        gameData.items.splice(index, 1);
+        renderItems();
     }
 
     function startGame() {
-        if (gameData.pairs.length === 0) {
-            alert('Добавьте хотя бы одно слово!');
+        if (gameData.items.length === 0) {
+            alert('Добавьте хотя бы один элемент одежды!');
             return;
         }
-        gameData.character = document.getElementById('char-select').value;
-        document.getElementById('display-char').innerText = gameData.character;
+        gameData.characterUrl = document.getElementById('char-url').value;
         
-        // Очищаем сцену от старой одежды
-        document.querySelectorAll('.equipped-item').forEach(el => el.remove());
+        // Установка персонажа
+        const stage = document.getElementById('stage');
+        stage.innerHTML = `<img id="stage-character" class="base-char" src="${gameData.characterUrl}" alt="Character">`;
 
-        // Строим гардероб
+        // Генерация гардероба
         const wardrobe = document.getElementById('wardrobe-container');
         wardrobe.innerHTML = '';
-        gameData.pairs.forEach(pair => {
-            const emoji = itemsDatabase[pair.en] || "🎁";
+        gameData.items.forEach(item => {
             wardrobe.innerHTML += `
-                <div class="clothing-item" onclick="openQuiz('${pair.en}', '${pair.ru}', '${emoji}')">
-                    <div class="emoji">${emoji}</div>
-                    <div class="name">${pair.en} / ${pair.ru}</div>
+                <div class="wardrobe-card" onclick="openQuiz('${item.en}', '${item.ru}', '${item.img}')">
+                    <img src="${item.img}" alt="${item.en}">
+                    <div class="word-label">${item.en} / ${item.ru}</div>
                 </div>
             `;
         });
@@ -268,55 +264,51 @@
 
     function resetGame() {
         document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('editor-screen').classList.active = true;
         document.getElementById('editor-screen').classList.add('active');
     }
 
-    function openQuiz(en, ru, emoji) {
-        activeItemKey = { en, emoji };
-        const modal = document.getElementById('quiz-modal');
+    function openQuiz(en, ru, img) {
+        activeItem = { en, img };
         document.getElementById('quiz-question').innerText = `Как переводится: "${ru}"?`;
         
-        // Генерируем варианты ответов
         const optionsGrid = document.getElementById('quiz-options');
         optionsGrid.innerHTML = '';
         
         let options = [en];
-        while (options.length < 3 && options.length < gameData.pairs.length) {
-            const randomPair = gameData.pairs[Math.floor(Math.random() * gameData.pairs.length)];
-            if (!options.includes(randomPair.en)) {
-                options.push(randomPair.en);
+        while (options.length < 3 && options.length < gameData.items.length) {
+            const randomItem = gameData.items[Math.floor(Math.random() * gameData.items.length)];
+            if (!options.includes(randomItem.en)) {
+                options.push(randomItem.en);
             }
         }
         options.sort(() => Math.random() - 0.5);
 
+        options.loadId = en;
         options.forEach(opt => {
-            optionsGrid.innerHTML += `<button class="option-btn" onclick="checkAnswer('${opt}', '${en}', '${emoji}')">${opt}</button>`;
+            optionsGrid.innerHTML += `<button class="option-btn" onclick="checkAnswer('${opt}', '${en}', '${img}')">${opt}</button>`;
         });
 
-        modal.style.display = 'flex';
+        document.getElementById('quiz-modal').style.display = 'flex';
     }
 
-    function checkAnswer(selected, correct, emoji) {
+    function checkAnswer(selected, correct, img) {
         document.getElementById('quiz-modal').style.display = 'none';
         if (selected === correct) {
-            equipItem(emoji);
+            equipItem(img);
         } else {
             alert('Неверно! Попробуйте еще раз.');
         }
     }
 
-    function equipItem(emoji) {
+    function equipItem(imgSrc) {
         const stage = document.getElementById('stage');
-        // Проверяем, надето ли уже
-        let existing = document.getElementById(`item-${emoji}`);
-        if (!existing) {
-            const itemElem = document.createElement('div');
-            itemElem.className = 'equipped-item';
-            itemElem.id = `item-${emoji}`;
-            itemElem.innerText = emoji;
-            // Случайное позиционирование для примера слоя одежды
-            itemElem.style.top = '20%';
-            itemElem.style.left = '30%';
+        // Проверяем, надета ли уже эта вещь
+        if (!document.getElementById(`img-${imgSrc}`)) {
+            const itemElem = document.createElement('img');
+            itemElem.src = imgSrc;
+            itemElem.className = 'layer-item';
+            itemElem.id = `img-${imgSrc}`;
             stage.appendChild(itemElem);
         }
     }
