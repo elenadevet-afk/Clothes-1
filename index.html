@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Одень персонажа: Английский язык</title>
+    <style>
+        :root {
+            --primary: #ff6b8b;
+            --secondary: #ff8e53;
+            --bg: #f9f9fb;
+            --text: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+        h2 { margin-top: 0; color: var(--primary); text-align: center; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        /* Стили редактора */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .pairs-list { margin-bottom: 15px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        .pair-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+
+        /* Стили игры */
+        .game-layout { display: flex; gap: 20px; position: relative; }
+        .stage {
+            width: 350px;
+            height: 450px;
+            background: #fff0f3;
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed var(--primary);
+            overflow: hidden;
+        }
+        .character {
+            font-size: 100px;
+            position: absolute;
+            user-select: none;
+        }
+        .equipped-item {
+            position: absolute;
+            font-size: 80px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .wardrobe {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        .clothing-item {
+            background: #fff;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .clothing-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .clothing-item .emoji { font-size: 40px; }
+        .clothing-item .name { font-size: 12px; margin-top: 5px; color: #666; }
+
+        /* Модальное окно квиза */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 350px;
+            text-align: center;
+        }
+        .options-grid { display: grid; gap: 10px; margin-top: 15px; }
+        .option-btn { background: #f0f0f2; color: var(--text); border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
+        .option-btn:hover { background: #e4e4e7; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ЭКРАН 1: РЕДАКТОР -->
+    <div id="editor-screen" class="screen active">
+        <h2>Настройка задания</h2>
+        
+        <div class="form-group">
+            <label>Выберите персонажа:</label>
+            <select id="char-select">
+                <option value="👧">Девочка (👧)</option>
+                <option value="👦">Мальчик (👦)</option>
+                <option value="🐱">Котёнок (🐱)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Вопросы и слова для тренировки (Английский - Перевод):</label>
+            <div class="pairs-list" id="pairs-list">
+                <!-- Динамические пары -->
+            </div>
+            <div class="pair-item">
+                <input type="text" id="new-en" placeholder="English (e.g., Hat)">
+                <input type="text" id="new-ru" placeholder="Перевод (например, Шляпа)">
+                <button type="button" onclick="addPair()" style="width: auto; padding: 10px 15px;">+</button>
+            </div>
+        </div>
+
+        <button onclick="startGame()">Запустить игру</button>
+    </div>
+
+    <!-- ЭКРАН 2: ИГРА -->
+    <div id="game-screen" class="screen">
+        <h2>Одень персонажа</h2>
+        <div class="game-layout">
+            <div class="stage" id="stage">
+                <div class="character" id="display-char">👧</div>
+            </div>
+            <div class="wardrobe" id="wardrobe-container">
+                <!-- Одежда подтягивается из пар -->
+            </div>
+        </div>
+        <button onclick="resetGame()" style="margin-top: 20px; background: #6c757d;">Настроить заново</button>
+    </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО ВОПРОСА -->
+<div class="modal" id="quiz-modal">
+    <div class="modal-content">
+        <h3>Ответьте на вопрос:</h3>
+        <p id="quiz-question" style="font-size: 18px; font-weight: bold;"></p>
+        <div class="options-grid" id="quiz-options"></div>
+    </div>
+</div>
+
+<script>
+    // Базовый набор одежды, привязанный к словам (можно расширять)
+    const itemsDatabase = {
+        "Hat": "👒", "Cap": "🧢", "Shirt": "👕", "Dress": "👗", 
+        "Jacket": "🧥", "Shoes": "👟", "Glasses": "👓", "Scarf": "🧣",
+        "Pants": "👖", "Skirt": "👚"
+    };
+
+    let gameData = {
+        character: "👧",
+        pairs: [
+            { en: "Hat", ru: "Шляпа" },
+            { en: "Glasses", ru: "Очки" },
+            { en: "Dress", ru: "Платье" },
+            { en: "Shoes", ru: "Обувь" }
+        ]
+    };
+
+    let activeItemKey = null;
+
+    function initEditor() {
+        renderPairs();
+    }
+
+    function renderPairs() {
+        const container = document.getElementById('pairs-list');
+        container.innerHTML = '';
+        gameData.pairs.forEach((pair, index) => {
+            container.innerHTML += `
+                <div class="pair-item">
+                    <input type="text" value="${pair.en}" disabled>
+                    <input type="text" value="${pair.ru}" disabled>
+                    <button type="button" onclick="removePair(${index})" style="background:#ff4757; width: auto; padding: 10px 15px;">×</button>
+                </div>
+            `;
+        });
+    }
+
+    function addPair() {
+        const en = document.getElementById('new-en').value.trim();
+        const ru = document.getElementById('new-ru').value.trim();
+        if (en && ru) {
+            gameData.pairs.push({ en, ru });
+            document.getElementById('new-en').value = '';
+            document.getElementById('new-ru').value = '';
+            renderPairs();
+        }
+    }
+
+    function removePair(index) {
+        gameData.pairs.splice(index, 1);
+        renderPairs();
+    }
+
+    function startGame() {
+        if (gameData.pairs.length === 0) {
+            alert('Добавьте хотя бы одно слово!');
+            return;
+        }
+        gameData.character = document.getElementById('char-select').value;
+        document.getElementById('display-char').innerText = gameData.character;
+        
+        // Очищаем сцену от старой одежды
+        document.querySelectorAll('.equipped-item').forEach(el => el.remove());
+
+        // Строим гардероб
+        const wardrobe = document.getElementById('wardrobe-container');
+        wardrobe.innerHTML = '';
+        gameData.pairs.forEach(pair => {
+            const emoji = itemsDatabase[pair.en] || "🎁";
+            wardrobe.innerHTML += `
+                <div class="clothing-item" onclick="openQuiz('${pair.en}', '${pair.ru}', '${emoji}')">
+                    <div class="emoji">${emoji}</div>
+                    <div class="name">${pair.en} / ${pair.ru}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('editor-screen').classList.remove('active');
+        document.getElementById('game-screen').classList.add('active');
+    }
+
+    function resetGame() {
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('editor-screen').classList.add('active');
+    }
+
+    function openQuiz(en, ru, emoji) {
+        activeItemKey = { en, emoji };
+        const modal = document.getElementById('quiz-modal');
+        document.getElementById('quiz-question').innerText = `Как переводится: "${ru}"?`;
+        
+        // Генерируем варианты ответов
+        const optionsGrid = document.getElementById('quiz-options');
+        optionsGrid.innerHTML = '';
+        
+        let options = [en];
+        while (options.length < 3 && options.length < gameData.pairs.length) {
+            const randomPair = gameData.pairs[Math.floor(Math.random() * gameData.pairs.length)];
+            if (!options.includes(randomPair.en)) {
+                options.push(randomPair.en);
+            }
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(opt => {
+            optionsGrid.innerHTML += `<button class="option-btn" onclick="checkAnswer('${opt}', '${en}', '${emoji}')">${opt}</button>`;
+        });
+
+        modal.style.display = 'flex';
+    }
+
+    function checkAnswer(selected, correct, emoji) {
+        document.getElementById('quiz-modal').style.display = 'none';
+        if (selected === correct) {
+            equipItem(emoji);
+        } else {
+            alert('Неверно! Попробуйте еще раз.');
+        }
+    }
+
+    function equipItem(emoji) {
+        const stage = document.getElementById('stage');
+        // Проверяем, надето ли уже
+        let existing = document.getElementById(`item-${emoji}`);
+        if (!existing) {
+            const itemElem = document.createElement('div');
+            itemElem.className = 'equipped-item';
+            itemElem.id = `item-${emoji}`;
+            itemElem.innerText = emoji;
+            // Случайное позиционирование для примера слоя одежды
+            itemElem.style.top = '20%';
+            itemElem.style.left = '30%';
+            stage.appendChild(itemElem);
+        }
+    }
+
+    initEditor();
+</script>
+
+</body>
+</html>
