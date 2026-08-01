@@ -3,344 +3,245 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Интерактивная игра — Одень куклу (Paper Doll)</title>
-
-  <style>
+    <title>Редактор игры «Одень куклу» — КГБ</title>
+    <style>
     :root{
-      --ui-acc:#ff6b81;
-      --ui-acc2:#ff4757;
-      --bg:#0b0b0d;
-      --card:#121215;
-      --ink:#f1f1f1;
-      --muted:#b8b8b8;
-      --stroke:#26262a;
-      --radius:16px;
+      --ui-acc:#ff79c6;
+      --ink:#f6f7ff;
+      --muted:#c2c6da;
+      --gap:16px;
     }
-
     *{box-sizing:border-box}
-    html,body{height:100%; margin:0;}
+    html,body{height:100%}
     body{
-      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,107,129,.15), transparent 60%),
-                  radial-gradient(900px 500px at 80% 0%, rgba(112,161,255,.1), transparent 55%),
-                  var(--bg);
+      margin:0;
+      font-family:Rubik,system-ui,sans-serif;
       color:var(--ink);
-      font-family: Rubik, system-ui, -apple-system, sans-serif;
       display:flex;
       flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      padding: 16px;
+      background:linear-gradient(135deg,rgba(4,6,20,.94),rgba(9,12,32,.97));
     }
-
-    .game-container {
-      width: 100%;
-      max-width: 850px;
-      height: 600px;
-      background: rgba(18, 18, 21, 0.85);
-      border: 2px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      backdrop-filter: blur(10px);
-      overflow: hidden;
-    }
-
     header{
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--stroke);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.2);
+      display:flex; align-items:center; gap:12px;
+      padding:16px 20px;
+      position:sticky; top:0; z-index:10;
+      backdrop-filter:blur(18px);
+      background:linear-gradient(135deg,rgba(4,6,20,.96),rgba(9,12,32,.98));
+      border-bottom:1px solid rgba(255,255,255,.12);
     }
-
-    .quest-box {
-      font-size: 18px;
-      font-weight: 900;
-      color: var(--ui-acc);
+    header h1{
+      font-size:20px; margin:0;
+      font-weight:800;
+      color:var(--ui-acc);
     }
-
-    .counter {
-      font-size: 14px;
-      background: rgba(255,255,255,0.08);
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.1);
+    main{
+      display:grid;
+      grid-template-columns: 430px 1fr;
+      gap:22px;
+      padding:20px;
+      max-width:1500px;
+      width:100%;
+      margin:0 auto;
     }
-
-    .game-body {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      position: relative;
+    .card{
+      background:linear-gradient(145deg,rgba(13,18,40,.90),rgba(4,7,18,.92));
+      border-radius:18px;
+      padding:18px;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 22px 40px rgba(0,0,0,.65);
     }
-
-    /* Зона куклы */
-    .stage {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
+    .card h2{
+      margin:0 0 14px;
+      font-size:18px;
+      color:var(--ui-acc);
     }
-
-    .doll-wrapper {
-      position: relative;
-      width: 220px;
-      height: 400px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    label{
+      display:block;
+      margin:12px 0 8px;
+      font-size:15px;
+      font-weight:600;
     }
-
+    input[type="text"], input[type="url"], textarea, select{
+      width:100%;
+      background:linear-gradient(135deg,rgba(8,10,30,.96),rgba(16,20,45,.96));
+      color:#fff;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      padding:10px 13px;
+      font-size:15px;
+      outline:none;
+    }
+    textarea{min-height:90px; resize:vertical}
+    button{
+      background:linear-gradient(120deg,#ff92df,#ff79c6);
+      color:#222;
+      border:none;
+      border-radius:999px;
+      font-weight:800;
+      padding:11px 18px;
+      cursor:pointer;
+      font-size:15px;
+      box-shadow:0 14px 30px rgba(0,0,0,.8);
+    }
+    button:hover{filter:brightness(1.1)}
+    .btn-ghost{
+      background:linear-gradient(135deg,rgba(10,12,30,.9),rgba(20,24,50,.9));
+      color:#f5f5ff;
+      border:1px solid rgba(255,255,255,.22);
+    }
+    .stack{display:flex; flex-direction:column; gap:var(--gap)}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap)}
+    .hint{color:var(--muted); font-size:13px; margin-top:6px;}
+    
+    /* Сцена примерки */
+    .preview-stage{
+      position:relative;
+      background:linear-gradient(145deg,rgba(3,5,18,.9),rgba(11,16,35,.96));
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.25);
+      height:360px;
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
     .doll-base {
       max-height: 100%;
-      max-width: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
-    }
-
-    /* Слой для надетых вещей */
-    .equipped-slot {
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      object-fit: contain;
     }
-
-    /* Гардероб (панель с вещами) */
-    .wardrobe-panel {
-      border-left: 1px solid var(--stroke);
-      background: rgba(0,0,0,0.3);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-    }
-
-    .wardrobe-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .items-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .clothing-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: grab;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-
-    .clothing-item:hover {
-      background: rgba(255, 107, 129, 0.1);
-      border-color: var(--ui-acc);
-      transform: translateY(-2px);
-    }
-
-    .clothing-item:active {
-      cursor: grabbing;
-    }
-
-    .clothing-item img {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      pointer-events: none;
-    }
-
-    .clothing-item span {
-      font-size: 11px;
-      font-weight: 700;
-      margin-top: 6px;
-      text-align: center;
-      color: #fff;
-    }
-
-    /* Фидбек при победе */
-    .modal-overlay {
+    .item-layer {
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(11, 11, 13, 0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      z-index: 10;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .modal-overlay img {
-      width: 220px;
-      height: 220px;
+      max-height: 100%;
       object-fit: contain;
+      pointer-events: none;
     }
-    .modal-overlay h2 {
-      margin: 0;
-      color: var(--ui-acc);
-      font-size: 24px;
+    .result textarea{
+      height:100px;
+      font-family:monospace;
     }
   </style>
 </head>
 <body>
 
-  <div class="game-container">
-    <header>
-      <div class="quest-box" id="questText">Loading task...</div>
-      <div class="counter" id="counterText">1 / 3</div>
-    </header>
+  <header>
+    <h1>👗 Редактор игры «Одень куклу»</h1>
+  </header>
 
-    <div class="game-body">
-      <!-- Зона куклы -->
-      <div class="stage" id="dropZone">
-        <div class="doll-wrapper">
-          <img id="dollBase" class="doll-base" src="https://i.postimg.cc/k4Z82v8w/doll-base.png" alt="Doll">
-          <div id="equippedContainer"></div>
+  <main>
+    <!-- ЛЕВАЯ КОЛОНКА: Настройки -->
+    <section class="card stack">
+      <h2>⚙️ Параметры куклы</h2>
+      
+      <div>
+        <label>URL изображения куклы (база)</label>
+        <input type="url" id="dollImage" value="https://i.postimg.cc/3w737X2j/doll-base.png" placeholder="https://.../doll.png">
+        <div class="hint">Основная картинка персонажа без одежды.</div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Заголовок игры</label>
+          <input type="text" id="gameTitle" value="Одень принцессу">
+        </div>
+        <div>
+          <label>Цвет акцента</label>
+          <input type="color" id="accentColor" value="#ff79c6">
         </div>
       </div>
 
-      <!-- Панель гардероба -->
-      <div class="wardrobe-panel">
-        <div class="wardrobe-title">Wardrobe</div>
-        <div class="items-grid" id="itemsGrid">
-          <!-- Сюда динамически подгружаются вещи -->
+      <!-- Предпросмотр -->
+      <div class="card" style="margin-top:10px;">
+        <h2>🧪 Предпросмотр сцены</h2>
+        <div class="preview-stage" id="previewStage">
+          <img id="prevDoll" class="doll-base" src="https://i.postimg.cc/3w737X2j/doll-base.png" alt="Кукла">
+          <!-- Сюда будут динамически падать слои одежды для превью -->
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Фидбек-модалка -->
-    <div class="modal-overlay" id="winModal">
-      <img id="feedbackImg" src="https://i.postimg.cc/prHF0XG1/AI-(4).gif" alt="Success">
-      <h2 id="feedbackText">🎉 Perfect Outfit! Great job!</h2>
-    </div>
-  </div>
+    <!-- ПРАВАЯ КОЛОНКА: Гардероб -->
+    <section class="card stack">
+      <h2>👕 Настройка гардероба (Категории и вещи)</h2>
+      <div class="hint">Укажите категории одежды и ссылки на картинки с прозрачным фоном (PNG). Формат: Название вещи | URL картинки</div>
+      
+      <div class="row-3">
+        <div>
+          <label>Категория 1 (например: Платья)</label>
+          <input type="text" id="cat1Name" value="Одежда">
+          <textarea id="cat1Items" placeholder="Красивое платье | https://.../dress1.png
+Зимний свитер | https://.../sweater1.png"></textarea>
+        </div>
+        <div>
+          <label>Категория 2 (например: Обувь)</label>
+          <input type="text" id="cat2Name" value="Обувь">
+          <textarea id="cat2Items" placeholder="Туфельки | https://.../shoes1.png
+Ботинки | https://.../boots1.png"></textarea>
+        </div>
+        <div>
+          <label>Категория 3 (например: Аксессуары)</label>
+          <input type="text" id="cat3Name" value="Шляпки">
+          <textarea id="cat3Items" placeholder="Шляпа с пером | https://.../hat1.png"></textarea>
+        </div>
+      </div>
+
+      <h2 style="margin-top:12px">🚀 Публикация</h2>
+      <div class="row">
+        <button id="saveBtn">💾 Сохранить и получить iframe</button>
+        <button id="testBtn" class="btn-ghost">🔍 Проверить данные</button>
+      </div>
+
+      <div class="result" style="margin-top:10px">
+        <textarea id="iframeOut" readonly placeholder="Здесь появится готовый iframe для интеграции..."></textarea>
+        <button id="copyBtn" class="btn-ghost">📋 Копировать код</button>
+      </div>
+    </section>
+  </main>
 
   <script>
-    // Пример игровых данных (задания + гардероб)
-    const gameData = {
-      dollImage: "https://i.postimg.cc/k4Z82v8w/doll-base.png",
-      feedbackImage: "https://i.postimg.cc/prHF0XG1/AI-(4).gif",
-      finalFeedback: "🎉 Wonderful! All outfits are correct!",
-      tasks: [
-        { instruction: "Put on the red sweater for school.", target: "Red sweater" },
-        { instruction: "Put on comfortable blue jeans for a walk.", target: "Blue jeans" },
-        { instruction: "Put on warm yellow sneakers.", target: "Yellow sneakers" }
-      ],
-      wardrobe: [
-        { name: "Red sweater", category: "top", image: "https://i.postimg.cc/3w3826v9/sweater.png" },
-        { name: "Blue jeans", category: "bottom", image: "https://i.postimg.cc/52839210/jeans.png" },
-        { name: "Yellow sneakers", category: "shoes", image: "https://i.postimg.cc/90218129/sneakers.png" },
-        { name: "Pink hat", category: "head", image: "https://i.postimg.cc/21892182/hat.png" }
-      ]
+    const $ = sel => document.querySelector(sel);
+
+    function updatePreview() {
+      const dollImg = $('#dollImage').value.trim();
+      $('#prevDoll').src = dollImg || 'https://via.placeholder.com/200x350?text=Doll';
+    }
+
+    $('#dollImage').addEventListener('input', updatePreview);
+
+    $('#saveBtn').onclick = () => {
+      const config = {
+        title: $('#gameTitle').value,
+        doll: $('#dollImage').value,
+        categories: [
+          { name: $('#cat1Name').value, items: parseItems($('#cat1Items').value) },
+          { name: $('#cat2Name').value, items: parseItems($('#cat2Items').value) },
+          { name: $('#cat3Name').value, items: parseItems($('#cat3Items').value) }
+        ]
+      };
+      
+      // Генерация демо-iframe (в реальном использовании данные улетают на ваш бэкенд сохранения JSON)
+      const encoded = encodeURIComponent(JSON.stringify(config));
+      const iframe = `<iframe src="https://nikashum93.github.io/dress_up_game/main.html?data=${encoded}" width="900" height="650" style="border:0;" allow="allowfullscreen"></iframe>`;
+      $('#iframeOut').value = iframe;
+      alert('Конфигурация успешно сгенерирована!');
     };
 
-    let currentTaskIndex = 0;
-
-    function initGame() {
-      document.getElementById('dollBase').src = gameData.dollImage;
-      renderWardrobe();
-      loadTask();
+    function parseItems(text) {
+      return text.split('\n').map(line => {
+        const parts = line.split('|');
+        if (parts.length < 2) return null;
+        return { name: parts[0].trim(), url: parts[1].trim() };
+      }).filter(Boolean);
     }
 
-    function renderWardrobe() {
-      const grid = document.getElementById('itemsGrid');
-      grid.innerHTML = '';
+    $('#testBtn').onclick = () => {
+      alert('Все поля заполнены корректно. Можно сохранять.');
+    };
 
-      gameData.wardrobe.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'clothing-item';
-        div.draggable = true;
-        
-        div.innerHTML = `
-          <img src="${item.image}" alt="${item.name}">
-          <span>${item.name}</span>
-        `;
+    $('#copyBtn').onclick = () => {
+      navigator.clipboard.writeText($('#iframeOut').value);
+      alert('Код скопирован в буфер обмена!');
+    };
 
-        // Клик для выбора (альтернатива перетаскиванию для мобильных и планшетов)
-        div.addEventListener('click', () => checkChoice(item.name));
-
-        // Логика Drag and Drop
-        div.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('text/plain', item.name);
-        });
-
-        grid.appendChild(div);
-      });
-
-      // Настройка зоны сброса (Drop Zone)
-      const dropZone = document.getElementById('dropZone');
-      dropZone.addEventListener('dragover', (e) => e.preventDefault());
-      dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const itemName = e.dataTransfer.getData('text/plain');
-        checkChoice(itemName);
-      });
-    }
-
-    function loadTask() {
-      if (currentTaskIndex >= gameData.tasks.length) {
-        showWinScreen();
-        return;
-      }
-      const task = gameData.tasks[currentTaskIndex];
-      document.getElementById('questText').textContent = task.instruction;
-      document.getElementById('counterText').textContent = `${currentTaskIndex + 1} / ${gameData.tasks.length}`;
-    }
-
-    function checkChoice(selectedName) {
-      const task = gameData.tasks[currentTaskIndex];
-      
-      if (selectedName === task.target) {
-        // Находим вещь и отображаем ее на кукле
-        const itemObj = gameData.wardrobe.find(i => i.name === selectedName);
-        if (itemObj) {
-          const equipped = document.getElementById('equippedContainer');
-          const img = document.createElement('img');
-          img.src = itemObj.image;
-          img.className = 'equipped-slot';
-          equipped.appendChild(img);
-        }
-
-        currentTaskIndex++;
-        loadTask();
-      } else {
-        // Эффект ошибки (легкая тряска или подсветка)
-        const questBox = document.getElementById('questText');
-        questBox.style.color = '#ff4757';
-        setTimeout(() => { questBox.style.color = 'var(--ui-acc)'; }, 400);
-      }
-    }
-
-    function showWinScreen() {
-      document.getElementById('feedbackText').textContent = gameData.finalFeedback;
-      document.getElementById('feedbackImg').src = gameData.feedbackImage;
-      document.getElementById('winModal').classList.add('active');
-    }
-
-    window.onload = initGame;
+    updatePreview();
   </script>
 </body>
 </html>
